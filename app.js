@@ -10,8 +10,6 @@
 /* jshint node: true, devel: true */
 'use strict';
 
-console.log("Messenger Bot Online!");
-
 const
   bodyParser = require('body-parser'),
   config = require('config'),
