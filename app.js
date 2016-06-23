@@ -66,6 +66,17 @@ app.get('/webhook', function(req, res) {
   }
 });
 
+// handler receiving messages
+app.post('/webhook', function (req, res) {
+    var events = req.body.entry[0].messaging;
+    for (i = 0; i < events.length; i++) {
+        var event = events[i];
+        if (event.message && event.message.text) {
+            sendMessage(event.sender.id, {text: "Echo: " + event.message.text});
+        }
+    }
+    res.sendStatus(200);
+});
 
 /*
  * All callbacks for Messenger are POST-ed. They will be sent to the same
@@ -74,40 +85,40 @@ app.get('/webhook', function(req, res) {
  * https://developers.facebook.com/docs/messenger-platform/implementation#subscribe_app_pages
  *
  */
-app.post('/webhook', function (req, res) {
-  var data = req.body;
-
-  // Make sure this is a page subscription
-  if (data.object == 'page') {
-    // Iterate over each entry
-    // There may be multiple if batched
-    data.entry.forEach(function(pageEntry) {
-      var pageID = pageEntry.id;
-      var timeOfEvent = pageEntry.time;
-
-      // Iterate over each messaging event
-      pageEntry.messaging.forEach(function(messagingEvent) {
-        if (messagingEvent.optin) {
-          receivedAuthentication(messagingEvent);
-        } else if (messagingEvent.message) {
-          receivedMessage(messagingEvent);
-        } else if (messagingEvent.delivery) {
-          receivedDeliveryConfirmation(messagingEvent);
-        } else if (messagingEvent.postback) {
-          receivedPostback(messagingEvent);
-        } else {
-          console.log("Webhook received unknown messagingEvent: ", messagingEvent);
-        }
-      });
-    });
-
-    // Assume all went well.
-    //
-    // You must send back a 200, within 20 seconds, to let us know you've
-    // successfully received the callback. Otherwise, the request will time out.
-    res.sendStatus(200);
-  }
-});
+// app.post('/webhook', function (req, res) {
+//   var data = req.body;
+//
+//   // Make sure this is a page subscription
+//   if (data.object == 'page') {
+//     // Iterate over each entry
+//     // There may be multiple if batched
+//     data.entry.forEach(function(pageEntry) {
+//       var pageID = pageEntry.id;
+//       var timeOfEvent = pageEntry.time;
+//
+//       // Iterate over each messaging event
+//       pageEntry.messaging.forEach(function(messagingEvent) {
+//         if (messagingEvent.optin) {
+//           receivedAuthentication(messagingEvent);
+//         } else if (messagingEvent.message) {
+//           receivedMessage(messagingEvent);
+//         } else if (messagingEvent.delivery) {
+//           receivedDeliveryConfirmation(messagingEvent);
+//         } else if (messagingEvent.postback) {
+//           receivedPostback(messagingEvent);
+//         } else {
+//           console.log("Webhook received unknown messagingEvent: ", messagingEvent);
+//         }
+//       });
+//     });
+//
+//     // Assume all went well.
+//     //
+//     // You must send back a 200, within 20 seconds, to let us know you've
+//     // successfully received the callback. Otherwise, the request will time out.
+//     res.sendStatus(200);
+//   }
+// });
 
 /*
  * Verify that the callback came from Facebook. Using the App Secret from
